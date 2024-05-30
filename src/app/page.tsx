@@ -5,8 +5,8 @@ import { useQuery } from 'react-query'
 import Navbar from '../components/Navbar'
 import axios from 'axios'
 import { parseISO, format } from 'date-fns'
-
-//  https://api.openweathermap.org/data/2.5/forecast?q=${place}&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}&cnt=56
+import Container from '@/components/container'
+import { convertKelvinToCelsius } from '@/utils/convertKelvinToCelsius'
 
 interface WeatherDetail {
   dt: number
@@ -64,22 +64,16 @@ interface WeatherData {
 }
 
 export default function Home() {
-  const { isLoading, error, data } = useQuery<WeatherData>(
-    'repoData',
-    async () => {
-      const { data } = await axios.get(
-        `https://api.openweathermap.org/data/2.5/forecast?q=pune&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}&cnt=56`
-      )
-      return data
-    }
-    // fetch(
-    //   'https://api.openweathermap.org/data/2.5/forecast?q=pune&appid=cb92244fb79ae05fdaa562549435d6bc&cnt=56'
-    // ).then((res) => res.json())
-  )
+  const { isLoading, error, data } = useQuery<WeatherData>('repoData', async () => {
+    const { data } = await axios.get(
+      `https://api.openweathermap.org/data/2.5/forecast?q=pune&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}&cnt=56`
+    )
+    return data
+  })
 
   const firstData = data?.list[0]
 
-  console.log('data', data?.city.name)
+  console.log('data', data)
 
   if (isLoading)
     return (
@@ -93,15 +87,37 @@ export default function Home() {
       <Navbar />
       <main className="px-3 max-w-7xl mx-auto flex flex-col gap-9 w-full pb-10 pt-4">
         {/* today data */}
-        <section>
-          <div>
-            <div className="flex gap-1 text-2xl items-end">
+        <section className="space-y-4">
+          <div className="space-y-2">
+            <h2 className="flex gap-1 text-2xl items-end">
               <p>{format(parseISO(firstData?.dt_txt ?? ''), 'EEEE')}</p>
               <p className="text-lg">
                 ({format(parseISO(firstData?.dt_txt ?? ''), 'dd.MM.yy')})
               </p>
-            </div>
-            <div></div>
+            </h2>
+            <Container className="gap-10 px6 items-center">
+              {/* Temperature */}
+              <div className="flex flex-col px-4">
+                <span className="text-5xl">
+                  {convertKelvinToCelsius(firstData?.main.temp ?? 309.27)}°
+                </span>
+                <div className="text-xs space-x-1 whitespace-nowrap">
+                  <span>Feels like</span>
+                  <span>{convertKelvinToCelsius(firstData?.main.feels_like ?? 0)}°</span>
+                  <p className="text-xs space-x-2">
+                    <span>
+                      {convertKelvinToCelsius(firstData?.main.temp_min ?? 0)}°⭣{' '}
+                    </span>
+                    <span>
+                      {' '}
+                      {convertKelvinToCelsius(firstData?.main.temp_max ?? 0)}°⭡
+                    </span>
+                  </p>
+                </div>
+              </div>
+              {/* Time and weather icon */}
+              <div className="flex gap-10 sm:gap-16 overflow-x-auto w-full justify-between pr-3"></div>
+            </Container>
           </div>
         </section>
 
