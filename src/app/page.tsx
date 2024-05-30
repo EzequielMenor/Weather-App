@@ -66,7 +66,7 @@ interface WeatherData {
 export default function Home() {
   const { isLoading, error, data } = useQuery<WeatherData>('repoData', async () => {
     const { data } = await axios.get(
-      `https://api.openweathermap.org/data/2.5/forecast?q=pune&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}&cnt=56`
+      `https://api.openweathermap.org/data/2.5/forecast?q=gandia&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}&cnt=56`
     )
     return data
   })
@@ -84,7 +84,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col gap-4 bg-gray-100 min-h-screen">
-      <Navbar />
+      <Navbar location={data?.city.name} />
       <main className="px-3 max-w-7xl mx-auto flex flex-col gap-9 w-full pb-10 pt-4">
         {/* today data */}
         <section className="space-y-4">
@@ -99,7 +99,7 @@ export default function Home() {
               {/* Temperature */}
               <div className="flex flex-col px-4">
                 <span className="text-5xl">
-                  {convertKelvinToCelsius(firstData?.main.temp ?? 309.27)}°
+                  {convertKelvinToCelsius(firstData?.main.temp ?? 298.68)}°
                 </span>
                 <div className="text-xs space-x-1 whitespace-nowrap">
                   <span>Feels like</span>
@@ -116,7 +116,14 @@ export default function Home() {
                 </div>
               </div>
               {/* Time and weather icon */}
-              <div className="flex gap-10 sm:gap-16 overflow-x-auto w-full justify-between pr-3"></div>
+              <div className="flex gap-10 sm:gap-16 overflow-x-auto w-full justify-between pr-3">
+                {data?.list.map((d, i) => (
+                  <div
+                    key={i}
+                    className="flex flex-col justify-between gap-2 items-center text-sm font-semibold"
+                  ></div>
+                ))}
+              </div>
             </Container>
           </div>
         </section>
